@@ -1,0 +1,51 @@
+#
+#   Createde By Meary in MonsterLifeServer
+#   Copyright (c) 2020 Meary in MonsterLifeServer
+#
+#   コピペなど自由にどうぞ（一言声をかけてくれるとありがたいが返事がなかった場合は勝手にどうぞ）
+#   連絡先:
+#      Discord メアリー#5087
+#
+
+# 接頭詞の指定
+Options:
+	DoorSystem.prefix: "[&6DoorSystem&r] "
+	
+# 接頭詞のロード
+on script load:
+	set {DoorSystem.prefix} to {@DoorSystem.prefix}
+
+# 扉を閉めるコード
+function closeDoor(p: player):
+	loop {DoorSystem.block::*}:
+		set {_block} to type of block at location at loop-value
+		set block at location at loop-value to redstone block
+		wait a tick 
+		set block at location at loop-value to {_block}
+	send "%{DoorSystem.prefix}%&6ドアを閉じました。" to {_p}
+		
+# コマンド
+command /door [<text>]:
+	trigger:
+		if player is not op:
+			send "%{DoorSystem.prefix}%&cあなたにはそのコマンドは使用不可能です。" to player
+			stop
+		if arg-1 is "set":
+			give gold axe named "&6&l扉設定用" to player
+			stop
+		if arg-1 is "start":
+			closeDoor(player)
+			stop
+		send "%{DoorSystem.prefix}%&c値を入力してください。" to player
+
+# 登録＆解除		
+on break:
+	player is op
+	player's held item is gold axe named "&6&l扉設定用"
+	cancel event
+	if {DoorSystem.block::*} contains location of event-block:
+		remove location of event-block from {DoorSystem.block::*}
+		send "%{DoorSystem.prefix}%&cドア直下ブロックから排除しました。" to player
+		stop
+	add location of event-block to {DoorSystem.block::*}
+	send "%{DoorSystem.prefix}%&6ドア直下ブロックに追加しました。" to player
